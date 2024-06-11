@@ -1,6 +1,7 @@
 #Dirs
 .vs/
-bin/
+bin/Debug-x64
+bin/Release-x64
 bin-int/
 
 #Files
