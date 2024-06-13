@@ -36,4 +36,4 @@ Normal light
 
   Also i was testing with Bloom, but that code was a mess. Heres result:
   ![image](https://github.com/ZennLuu/YZPost-Processing/assets/154216577/8f4f8dd2-bedc-42b9-8106-5871ef6d423e)
-  Fps count here's down due to compiling shaders at each frame :) I was testing possibility to cain up different post-process shaders.
+  Fps count here's down due to compiling shaders at each frame :) I was testing possibility to chain up different post-process shaders.
