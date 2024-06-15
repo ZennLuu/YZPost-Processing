@@ -20,6 +20,14 @@ private:
 	Entity* m_guide = nullptr;
 	Entity* m_cross = nullptr;
 
+	Entity* m_skybox = nullptr;
+
+
+	Entity* m_s1 = nullptr;
+	Entity* m_s2 = nullptr;
+	Entity* m_s3 = nullptr;
+
+
 
 	f32 m_rotation = 0.0f;
 
@@ -27,5 +35,6 @@ private:
 	i32 m_5x = 0;
 
 	PostProcessComponent* m_postProcess = nullptr;
+
 };
 

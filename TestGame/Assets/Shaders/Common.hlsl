@@ -1,3 +1,6 @@
+#define M_PI 3.14159265359
+#define M_RECIPROCAL_PI 0.3183098861837907
+#define M_RECIPROCAL_2PI 0.15915494309189535
 struct VS_INPUT
 {
     float4 position : POSITION0;
@@ -58,9 +61,6 @@ cbuffer constant : register(b0)
     TerrainData terrain;
     WaterData water;
     FogData fog;
-    bool ChromaticAberration;
-    bool FilmGrain;
-    bool Bloom;
 };
 
 float3 computePhongLighting(

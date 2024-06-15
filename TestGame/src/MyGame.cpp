@@ -22,9 +22,27 @@ void MyGame::onCreate()
 	auto resourceManager = getResourceManager();
 
 	auto ball = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/sphere.obj");
+	auto suzanna = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/suzanna.obj");
+
+	auto skyTex = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/sky.jpg");
 
 	auto tex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_d.jpg");
 	auto tex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_n.jpg");
+
+	auto mtex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/color.jpg");
+	auto mtex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/normal.jpg");
+	auto mtex3 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/metallnes.jpg");
+	auto mtex4 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/roughness.jpg");
+
+	auto mtex1_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/color.jpg");
+	auto mtex2_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/normal.jpg");
+	auto mtex3_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/metallnes.jpg");
+	auto mtex4_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/roughness.jpg");
+
+	auto mtex1_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/color.jpg");
+	auto mtex2_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/normal.jpg");
+	auto mtex3_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/metallnes.jpg");
+	auto mtex4_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/roughness.jpg");
 
 	auto cliff = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/ground.jpg");
 	auto ground = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/sand.jpg");
@@ -36,10 +54,30 @@ void MyGame::onCreate()
 
 	auto cross = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/UI/cross.png");
 
-	auto mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/Base.hlsl");
-	mat1->addTexture(tex1);
-	mat1->addTexture(tex2);
+	auto skyMat = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/SkyBox.hlsl");
+	skyMat->addTexture(skyTex);
+	skyMat->setCullMode(CullMode::Front);
+
+	auto mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat1->addTexture(mtex1_2);
+	mat1->addTexture(mtex2_2);
+	mat1->addTexture(mtex3_2);
+	mat1->addTexture(mtex4_2);
 	mat1->setCullMode(CullMode::Back);
+
+	auto mat2 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat2->addTexture(mtex1);
+	mat2->addTexture(mtex2);
+	mat2->addTexture(mtex3);
+	mat2->addTexture(mtex4);
+	mat2->setCullMode(CullMode::Back);
+
+	auto mat3 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat3->addTexture(mtex1_1);
+	mat3->addTexture(mtex2_1);
+	mat3->addTexture(mtex3_1);
+	mat3->addTexture(mtex4_1);
+	mat3->setCullMode(CullMode::Back);
 
 	//post process
 	{
@@ -48,14 +86,47 @@ void MyGame::onCreate()
 		m_postProcess->setShader(L"Assets/Shaders/DefaultPostProcess.hlsl");
 	}
 
+	//skybox
+	{
+		m_skybox = getWorld()->createEntity<Entity>();
+		auto meshComp = m_skybox->createComponent<MeshComponent>();
+		meshComp->setMesh(ball);
+		meshComp->addMaterial(skyMat);
+		auto transform = m_skybox->getTransform();
+		transform->setScale(Vector3D(1000, 1000, 1000));
+	}	
+	
 	//ball
 	{
-		auto entity = getWorld()->createEntity<Entity>();
-		auto meshComp = entity->createComponent<MeshComponent>();
-		meshComp->setMesh(ball);
+
+		m_s1 = getWorld()->createEntity<Entity>();
+		auto meshComp = m_s1->createComponent<MeshComponent>();
+		meshComp->setMesh(suzanna);
 		meshComp->addMaterial(mat1);
-		auto transform = entity->getTransform();
-		transform->setPosition(Vector3D(0, 0, 0));
+		auto transform = m_s1->getTransform();
+		transform->setPosition(Vector3D(0, 1, 1));
+	}
+	
+	//ball
+	{
+
+		m_s2 = getWorld()->createEntity<Entity>();
+		auto meshComp = m_s2->createComponent<MeshComponent>();
+		meshComp->setMesh(suzanna);
+		meshComp->addMaterial(mat2);
+		auto transform = m_s2->getTransform();
+		transform->setPosition(Vector3D(3, 1, 1));
+	}	
+	
+	//ball
+	{
+
+		m_s3 = getWorld()->createEntity<Entity>();
+		auto meshComp = m_s3->createComponent<MeshComponent>();
+		meshComp->setMesh(suzanna);
+		meshComp->addMaterial(mat3);
+		auto transform = m_s3->getTransform();
+		transform->setPosition(Vector3D(-3, 1, 1));
 	}
 
 	//terrain
@@ -68,7 +139,7 @@ void MyGame::onCreate()
 
 		auto transform = entity->getTransform();
 		transform->setScale(Vector3D(1, 1, 1));
-		transform->setPosition(Vector3D(0, -10, 0));
+		transform->setPosition(Vector3D(50, -10, 50));
 	}
 
 	//sea
@@ -82,19 +153,20 @@ void MyGame::onCreate()
 	}
 
 	//fog
-	{
-		auto entity = getWorld()->createEntity<Entity>();
-		auto fogComponent = entity->createComponent<FogComponent>();
-		fogComponent->setData(Vector4D(0.8f, 0.9f, 1.0f, 1.0f), 1000, 10000);
-	}
+	//{
+	//	auto entity = getWorld()->createEntity<Entity>();
+	//	auto fogComponent = entity->createComponent<FogComponent>();
+	//	fogComponent->setData(Vector4D(0.8f, 0.9f, 1.0f, 1.0f), 1000, 10000);
+	//}
 
 	//light
 	{
 		m_entity = getWorld()->createEntity<Entity>();
 		auto lightComponent = m_entity->createComponent<LightComponent>();
 		lightComponent->setColor(Vector4D(1.0f, 1.0f, 1.0f, 1));
+		lightComponent->setType(LightComponent::LightType::Directional);
 		m_entity->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
-		m_entity->getTransform()->setPosition(Vector3D(0, 2, 0));
+		m_entity->getTransform()->setPosition(Vector3D(0, 200, 0));
 	}
 
 	//text
@@ -131,10 +203,16 @@ void MyGame::onCreate()
 void MyGame::onUpdate(f32 deltaTime)
 {
 	Game::onUpdate(deltaTime);
-	m_rotation += 1.57f * deltaTime;
+	m_rotation += 1.57f * deltaTime/ 2;
+
+	m_s1->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
+	m_s2->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
+	m_s3->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
 
 	//m_terrain->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0));
-	m_entity->getTransform()->setRotation(Vector3D(0.707f, m_rotation, 0));
+	//m_entity->getTransform()->setRotation(Vector3D(0.707f, m_rotation, 0));
+
+	m_skybox->getTransform()->setPosition(m_player->getTransform()->getPosition());
 
 	auto clientSize = getDisplay()->getClientSize();
 	auto textComp1 = m_text->getComponent<TextComponent>();
@@ -165,7 +243,7 @@ void MyGame::onUpdate(f32 deltaTime)
 	infoText2 << L"Jump: Space\n";
 	infoText2 << L"Move: WASD Shift: Accelerate\n";
 	infoText2 << L"1 - Default PostProcess, 2 - Chromatic Abberation, 3 - Vignette\n";
-	infoText2 << L"4 - PS1, 5 - Grayscale, 6 - Black and White\n";
+	infoText2 << L"4 - PS1, 5 - Grayscale, 6 - Black and White, 7 - HDR\n";
 
 	textComp2->setText(infoText2.str().c_str());
 	m_guide->getTransform()->setPosition(Vector3D(
@@ -197,6 +275,10 @@ void MyGame::onUpdate(f32 deltaTime)
 	if (getInputSystem()->isKeyUp(Key::_6))
 	{
 		m_postProcess->setShader(L"Assets/Shaders/BlackWhite.hlsl");
+	}
+	if (getInputSystem()->isKeyUp(Key::_7))
+	{
+		m_postProcess->setShader(L"Assets/Shaders/HDR.hlsl");
 	}
 
 	m_cross->getTransform()->setPosition(Vector3D((f32)(clientSize.width / 2.0f) - 25.0f, (f32)(clientSize.height / 2.0f) - 25.0f, 0));
