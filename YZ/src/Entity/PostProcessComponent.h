@@ -2,10 +2,19 @@
 #include <Entity/Component.h>
 #include <Math/Rect.h>
 
+
+
 class PostProcessComponent : public Component
 {
 public:
+	enum class Type
+	{
+		None = 0, 
+		HDR
+	};
+public:
 	PostProcessComponent();
+	PostProcessComponent(Type type);
 	virtual ~PostProcessComponent();
 
 	void setShader(const wchar_t* file_path);
@@ -24,6 +33,8 @@ private:
 
 	VertexShaderPtr m_vertexShader;
 	PixelShaderPtr m_pixelShader;
+
+	Type m_type = Type::None;
 
 	friend class GraphicsEngine;
 };

@@ -56,7 +56,7 @@ Texture2D::Texture2D(const Rect& size, Texture2D::Type type, RenderSystem* syste
 	else if (type == Texture2D::Type::DepthStencil)
 		tex_desc.Format = DXGI_FORMAT_R32_TYPELESS;
 	else if (type == Texture2D::Type::HDR)
-		tex_desc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
+		tex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	
 	tex_desc.Usage = D3D11_USAGE_DEFAULT;
 

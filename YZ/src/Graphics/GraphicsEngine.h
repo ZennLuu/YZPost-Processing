@@ -5,6 +5,8 @@
 #include <d3d11.h> 
 #include <wrl.h>
 
+#include "Graphics/ImguiManager.h"
+
 class GraphicsEngine
 {
 public:
@@ -20,10 +22,13 @@ public:
 
 	void createPostProcessInternal();
 	void resizePostProcess(const Rect& size);
+
 private:
 	std::unique_ptr<RenderSystem> m_render_system = nullptr;
 	Game* m_game = nullptr;
 
+	std::unique_ptr<ImguiManager> m_imgui;
+	
 	std::set<MeshComponent*> m_meshes;
 	std::set<CameraComponent*> m_cameras;
 	std::set<LightComponent*> m_lights;

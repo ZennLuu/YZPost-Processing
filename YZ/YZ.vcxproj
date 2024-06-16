@@ -46,20 +46,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)src/;$(ProjectDir)vendor/include/;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)vendor/;$(ProjectDir)src/;$(ProjectDir)vendor/include/;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)vendor/bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)src/;$(ProjectDir)vendor/include/;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)vendor/;$(ProjectDir)src/;$(ProjectDir)vendor/include/;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)vendor/bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);IMGUI_IMPL_WIN32_DISABLE_GAMEPAD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -113,6 +113,7 @@
     <ClInclude Include="src\Graphics\DeviceContext.h" />
     <ClInclude Include="src\Graphics\Font2D.h" />
     <ClInclude Include="src\Graphics\GraphicsEngine.h" />
+    <ClInclude Include="src\Graphics\ImguiManager.h" />
     <ClInclude Include="src\Graphics\IndexBuffer.h" />
     <ClInclude Include="src\Graphics\PixelShader.h" />
     <ClInclude Include="src\Graphics\RenderSystem.h" />
@@ -138,6 +139,14 @@
     <ClInclude Include="src\Resource\ResourceManager.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Window\Window.h" />
+    <ClInclude Include="vendor\imgui\imconfig.h" />
+    <ClInclude Include="vendor\imgui\imgui.h" />
+    <ClInclude Include="vendor\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="vendor\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="vendor\include\DirectXTex.h" />
     <ClInclude Include="vendor\include\SimpleMath.h" />
     <ClInclude Include="vendor\include\SpriteBatch.h" />
@@ -170,6 +179,7 @@
     <ClCompile Include="src\Graphics\DeviceContext.cpp" />
     <ClCompile Include="src\Graphics\Font2D.cpp" />
     <ClCompile Include="src\Graphics\GraphicsEngine.cpp" />
+    <ClCompile Include="src\Graphics\ImguiManager.cpp" />
     <ClCompile Include="src\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="src\Graphics\PixelShader.cpp" />
     <ClCompile Include="src\Graphics\RenderSystem.cpp" />
@@ -186,6 +196,12 @@
     <ClCompile Include="src\Resource\ResourceManager.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
+    <ClCompile Include="vendor\imgui\imgui.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

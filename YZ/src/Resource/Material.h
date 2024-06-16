@@ -15,10 +15,20 @@ public:
 
 	void setData(void* data, ui32 size);
 
+	void setMetallic(const float metallic);
+	void setRoughness(const float roughness);
+	void setReflectance(const float reflectance);
+
+
 	void setCullMode(const CullMode& mode);
 	CullMode getCullMode();
 
 private:
+
+	float m_metallic = 0.0;
+	float m_roughness = 0.5;
+	float m_reflectance = 0.5;
+
 	VertexShaderPtr m_vertex_shader;
 	PixelShaderPtr m_pixel_shader;
 	ConstantBufferPtr m_constant_buffer;

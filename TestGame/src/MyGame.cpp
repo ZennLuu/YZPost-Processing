@@ -2,6 +2,10 @@
 #include "Player.h"
 #include <time.h>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
+
 MyGame::MyGame()
 {
 }
@@ -29,10 +33,10 @@ void MyGame::onCreate()
 	auto tex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_d.jpg");
 	auto tex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_n.jpg");
 
-	auto mtex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/color.jpg");
-	auto mtex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/normal.jpg");
-	auto mtex3 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/metallnes.jpg");
-	auto mtex4 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M1/roughness.jpg");
+	auto mtex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/color.jpg");
+	auto mtex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/normal.jpg");
+	auto mtex3 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/metallnes.jpg");
+	auto mtex4 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/roughness.jpg");
 
 	auto mtex1_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/color.jpg");
 	auto mtex2_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/normal.jpg");
@@ -58,21 +62,21 @@ void MyGame::onCreate()
 	skyMat->addTexture(skyTex);
 	skyMat->setCullMode(CullMode::Front);
 
-	auto mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
 	mat1->addTexture(mtex1_2);
 	mat1->addTexture(mtex2_2);
 	mat1->addTexture(mtex3_2);
 	mat1->addTexture(mtex4_2);
 	mat1->setCullMode(CullMode::Back);
 
-	auto mat2 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat2 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
 	mat2->addTexture(mtex1);
 	mat2->addTexture(mtex2);
 	mat2->addTexture(mtex3);
 	mat2->addTexture(mtex4);
 	mat2->setCullMode(CullMode::Back);
 
-	auto mat3 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat3 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
 	mat3->addTexture(mtex1_1);
 	mat3->addTexture(mtex2_1);
 	mat3->addTexture(mtex3_1);
@@ -101,7 +105,7 @@ void MyGame::onCreate()
 
 		m_s1 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s1->createComponent<MeshComponent>();
-		meshComp->setMesh(suzanna);
+		meshComp->setMesh(ball);
 		meshComp->addMaterial(mat1);
 		auto transform = m_s1->getTransform();
 		transform->setPosition(Vector3D(0, 1, 1));
@@ -112,7 +116,7 @@ void MyGame::onCreate()
 
 		m_s2 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s2->createComponent<MeshComponent>();
-		meshComp->setMesh(suzanna);
+		meshComp->setMesh(ball);
 		meshComp->addMaterial(mat2);
 		auto transform = m_s2->getTransform();
 		transform->setPosition(Vector3D(3, 1, 1));
@@ -123,7 +127,7 @@ void MyGame::onCreate()
 
 		m_s3 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s3->createComponent<MeshComponent>();
-		meshComp->setMesh(suzanna);
+		meshComp->setMesh(ball);
 		meshComp->addMaterial(mat3);
 		auto transform = m_s3->getTransform();
 		transform->setPosition(Vector3D(-3, 1, 1));
@@ -202,6 +206,7 @@ void MyGame::onCreate()
 
 void MyGame::onUpdate(f32 deltaTime)
 {
+	deltaTime = deltaTime * m_speed;
 	Game::onUpdate(deltaTime);
 	m_rotation += 1.57f * deltaTime/ 2;
 
@@ -280,6 +285,45 @@ void MyGame::onUpdate(f32 deltaTime)
 	{
 		m_postProcess->setShader(L"Assets/Shaders/HDR.hlsl");
 	}
+	if (getInputSystem()->isKeyUp(Key::M))
+	{
+		m_toggleimgui = !m_toggleimgui;
+	}
 
 	m_cross->getTransform()->setPosition(Vector3D((f32)(clientSize.width / 2.0f) - 25.0f, (f32)(clientSize.height / 2.0f) - 25.0f, 0));
+}
+
+void MyGame::dramImgui()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	static char buffer[1024];
+
+	if (m_toggleimgui)
+	{
+		if (ImGui::Begin("Speed"))
+		{
+			ImGui::SliderFloat("Speed factor", &m_speed, 0.0f, 40.0f);
+			ImGui::SliderFloat("Reflectance", &m_reflectance, 0.0f, 1.0f);
+			ImGui::Text("App avarage: %.3f ms/frame (%.1f FPS)",1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		}
+		ImGui::End();
+	}
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	mat1->setMetallic(m_metallic);
+	mat1->setRoughness(m_roughness);
+	mat1->setReflectance(m_reflectance);
+
+	mat2->setMetallic(m_metallic);
+	mat2->setRoughness(m_roughness);
+	mat2->setReflectance(m_reflectance);
+	
+	mat3->setMetallic(m_metallic);
+	mat3->setRoughness(m_roughness);
+	mat3->setReflectance(m_reflectance);
+
 }

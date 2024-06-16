@@ -51,6 +51,7 @@ private:
 	size_t m_meshLayoutSize = 0;
 
 private:
+	friend class GraphicsEngine;
 	friend class SwapChain;
 	friend class VertexBuffer;
 	friend class IndexBuffer;

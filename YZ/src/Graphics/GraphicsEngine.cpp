@@ -30,6 +30,9 @@
 
 #include <Entity/Entity.h>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 __declspec(align(16))
 struct CameraData
@@ -43,8 +46,12 @@ struct CameraData
 __declspec(align(16))
 struct LightData
 {
+	//LightComponent::LightType type;
 	Vector4D color;
 	Vector4D direction;
+	//Vector4D position;
+	//float intensity;
+	//float radius;
 };
 
 __declspec(align(16))
@@ -71,13 +78,12 @@ struct FogData
 };
 
 __declspec(align(16))
-struct Flags
+struct MaterialData
 {
-	bool ChromaticAberration;
-	bool FilmGrain;
-	bool Bloom;
+	f32 metallic = 0.0;
+	f32 roughness = 0.5;
+	f32 reflectance = 0.5;
 };
-
 
 __declspec(align(16))
 struct ConstantData
@@ -88,16 +94,17 @@ struct ConstantData
 	LightData light;
 	TerrainData terrain;
 	WaterData water;
-	FogData fog;
-	bool ChromaticAberration;
-	bool FilmGrain;
-	bool Bloom;
+	FogData fog; 
+	MaterialData material;
 };
 
 
 GraphicsEngine::GraphicsEngine(Game* game) : m_game(game)
 {
 	m_render_system = std::make_unique<RenderSystem>();
+	m_imgui = std::make_unique<ImguiManager>();
+
+	ImGui_ImplDX11_Init(this->m_render_system->m_d3d_device.Get(), this->m_render_system->m_imm_context.Get());
 }
 
 void GraphicsEngine::update()
@@ -155,6 +162,8 @@ void GraphicsEngine::update()
 		Matrix4x4 w;
 		t->getWorldMatrix(w);
 		constData.light.direction = w.getZDirection();
+		//constData.light.position = t->getPosition();
+		//constData.light.radius = l->getRadius();
 		constData.light.color = l->getColor();
 	}
 
@@ -189,8 +198,12 @@ void GraphicsEngine::update()
 		{
 			if (i >= materials.size()) break;
 			auto mat = materials[i].get();
-
+			
 			m_render_system->setCullMode(mat->getCullMode());
+
+			constData.material.metallic = mat->m_metallic;
+			constData.material.roughness = mat->m_roughness;
+			constData.material.reflectance = mat->m_reflectance;
 
 			mat->setData(&constData, sizeof(ConstantData));
 			context->setConstantBuffer(mat->m_constant_buffer);
@@ -313,6 +326,8 @@ void GraphicsEngine::update()
 		font->m_batch->End();
 	}
 
+	m_game->dramImgui();
+
 	swapChain->present(true);
 }
 
@@ -357,7 +372,6 @@ void GraphicsEngine::addComponent(Component* component)
 	{
 		if (!m_postProcess.size()) m_postProcess.emplace(c);
 	}
-
 }
 
 void GraphicsEngine::removeComponent(Component* component)
@@ -396,4 +410,5 @@ void GraphicsEngine::resizePostProcess(const Rect& size)
 
 GraphicsEngine::~GraphicsEngine()
 {
+	ImGui_ImplDX11_Shutdown();
 }

@@ -1,9 +1,13 @@
 #include <Window/Window.h>
 #include <Windows.h>
 #include <exception>
+#include "imgui/imgui_impl_win32.h"
 
 LRESULT CALLBACK WndProc(HWND hwnd, ui32 msg, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+		return true;
+
 	//GetWindowLong(hwnd,)
 	switch (msg)
 	{
@@ -93,7 +97,11 @@ Window::Window()
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)this);
 
 	//show up the window
-	ShowWindow(hwnd, SW_SHOW);
+	ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+
+	// init ImGui
+	ImGui_ImplWin32_Init(hwnd);
+
 	UpdateWindow(hwnd);
 }
 
@@ -148,5 +156,6 @@ void Window::onSize(const Rect& size)
 
 Window::~Window()
 {
+	ImGui_ImplWin32_Shutdown();
 	DestroyWindow(static_cast<HWND>(m_hwnd));
 }

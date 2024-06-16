@@ -26,6 +26,8 @@ protected:
 	virtual void onUpdate(f32 deltaTime) {}
 	virtual void onQuit() {}
 
+	virtual void dramImgui() {}
+
 private:
 	void onDisplayMove();
 	void onDisplaySize(const Rect& size);

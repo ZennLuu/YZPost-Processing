@@ -64,7 +64,9 @@ float3 microfacetBRDF(float3 L, float3 V, float3 N,
     float NoH = clamp(dot(N, H), 0.0, 1.0);
     float VoH = clamp(dot(V, H), 0.0, 1.0);
     
-    float a16 = 0.16 * (roughness * roughness);
+    roughness = max(roughness, 0.0001);
+    
+    float a16 = 0.16 * (reflectance * reflectance);
     
     float3 f0 = float3(a16, a16, a16);
     f0 = lerp(f0, baseColor, metallic);
@@ -126,17 +128,14 @@ float4 psmain(VPS_INOUT input) : SV_TARGET
     float3 finalColor = rgb2lin(float3(0, 0, 0));
     
     float irradiance = max(dot(light.direction.xyz, N), 0.0) * 10;
+ 
+    reflectance = material.reflectance;
     
     if (irradiance > 0.0)
     {
         float3 brdf = microfacetBRDF(L, V, N, metallic, roughness, color.rgb, reflectance);
         finalColor = brdf * irradiance * light.color.rgb;
     }
-    
-    
-    float3 refletionVector = reflect(V, normalize(input.normal.xyz));
-    
-    float3 reflectColor = CubeMap.Sample(ColorSampler, refletionVector).rgb;
     
     return float4(finalColor, 1.0);
 }

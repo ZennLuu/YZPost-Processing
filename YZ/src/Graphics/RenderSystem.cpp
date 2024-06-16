@@ -11,6 +11,8 @@
 #include <d3dcompiler.h>
 #include <exception>
 
+#include "imgui/imgui_impl_dx11.h"
+
 RenderSystem::RenderSystem()
 {
 	D3D_DRIVER_TYPE driver_types[] =
@@ -54,6 +56,7 @@ RenderSystem::RenderSystem()
 
 	initRasterizerStates();
 	compilePrivateShaders();
+
 }
 
 RenderSystem::~RenderSystem()

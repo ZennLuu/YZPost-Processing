@@ -35,7 +35,14 @@ void DeviceContext::clearDepthStencil(const SwapChainPtr& swap_chain)
 
 void DeviceContext::clearRenderTargetColor(const TexturePtr& render_target, f32 red, f32 green, f32 blue, f32 alpha)
 {
-	if (render_target->getTexture()->m_type != Texture2D::Type::RenderTarget) return;
+	if ((render_target->getTexture()->m_type == Texture2D::Type::RenderTarget) || (render_target->getTexture()->m_type == Texture2D::Type::HDR))
+	{
+
+	}
+	else
+	{
+		return;
+	}
 	FLOAT clear_color[] = { red,green,blue,alpha };
 	m_device_context->ClearRenderTargetView(render_target->getTexture()->m_render_target_view.Get(), clear_color);
 }
@@ -48,7 +55,14 @@ void DeviceContext::clearDepthStencil(const TexturePtr& depth_stencil)
 
 void DeviceContext::setRenderTarget(const TexturePtr& render_target, const TexturePtr& depth_stencil)
 {
-	if (render_target->getTexture()->m_type != Texture2D::Type::RenderTarget) return;
+	if ((render_target->getTexture()->m_type == Texture2D::Type::RenderTarget) || (render_target->getTexture()->m_type == Texture2D::Type::HDR))
+	{
+
+	}
+	else
+	{
+		return;
+	}
 	if (depth_stencil->getTexture()->m_type != Texture2D::Type::DepthStencil) return;
 	m_device_context->OMSetRenderTargets(1, render_target->getTexture()->m_render_target_view.GetAddressOf(), depth_stencil->getTexture()->m_depth_stencil_view.Get());
 }

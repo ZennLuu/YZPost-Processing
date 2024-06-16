@@ -52,6 +52,12 @@ struct FogData
     float enable;
 };
 
+struct MaterialData
+{
+    float metallic ;
+    float roughness;
+    float reflectance;
+};
 cbuffer constant : register(b0)
 {
     row_major float4x4 world;
@@ -61,6 +67,7 @@ cbuffer constant : register(b0)
     TerrainData terrain;
     WaterData water;
     FogData fog;
+    MaterialData material;
 };
 
 float3 computePhongLighting(

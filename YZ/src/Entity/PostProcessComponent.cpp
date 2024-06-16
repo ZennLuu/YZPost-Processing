@@ -17,6 +17,11 @@ PostProcessComponent::PostProcessComponent()
 {
 }
 
+PostProcessComponent::PostProcessComponent(Type type)
+{
+	m_type = type;
+}
+
 PostProcessComponent::~PostProcessComponent()
 {
 	m_entity->getWorld()->getGame()->getGraphicsEngine()->removeComponent(this);
@@ -42,7 +47,7 @@ void PostProcessComponent::setData(void* data, ui32 size)
 void PostProcessComponent::resize(const Rect& window)
 {
 	auto resManager = m_entity->getWorld()->getGame()->getResourceManager();
-	m_render_target = resManager->createTexture(window, Texture2D::Type::RenderTarget);
+	m_render_target = resManager->createTexture(window, Texture2D::Type::HDR);
 	m_depth_stencil = resManager->createTexture(window, Texture2D::Type::DepthStencil);
 }
 
@@ -72,7 +77,7 @@ void PostProcessComponent::onCreateInternal()
 	//winSize.width = winSize.width / 8;
 	//winSize.height = winSize.height / 8;
 
-	m_render_target = resManager->createTexture(winSize, Texture2D::Type::RenderTarget);
+	m_render_target = resManager->createTexture(winSize, Texture2D::Type::HDR);
 	m_depth_stencil = resManager->createTexture(winSize, Texture2D::Type::DepthStencil);
 
 	auto renderSystem = m_entity->getWorld()->getGame()->getGraphicsEngine()->getRenderSystem();

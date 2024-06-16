@@ -52,6 +52,21 @@ void Material::setData(void* data, ui32 size)
 		m_constant_buffer->update(rsys->getImmediateDeviceContext(), data);
 }
 
+void Material::setMetallic(const float metallic)
+{
+	m_metallic = metallic;
+}
+
+void Material::setRoughness(const float roughness)
+{
+	m_roughness = roughness;
+}
+
+void Material::setReflectance(const float reflectance)
+{
+	m_reflectance = reflectance;
+}
+
 void Material::setCullMode(const CullMode& mode)
 {
 	m_cull_mode = mode;

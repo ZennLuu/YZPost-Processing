@@ -15,7 +15,7 @@ public:
 
 	template <typename T>
 	T* createComponent()
-	{
+ 	{
 		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component class");
 		auto c = getComponent<T>();
 		if (!c)
