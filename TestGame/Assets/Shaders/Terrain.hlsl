@@ -12,9 +12,6 @@ sampler CliffMapSampler : register(s2);
 
 VPS_INOUT vsmain(VS_INPUT input)
 {
-  
-    
-    
     VPS_INOUT output = (VPS_INOUT) 0;
 
     float height = HeightMap.SampleLevel(HeightMapSampler, input.texcoord, 0).r;

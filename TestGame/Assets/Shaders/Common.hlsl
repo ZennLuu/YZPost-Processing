@@ -30,6 +30,10 @@ struct LightData
 {
     float4 color;
     float4 direction;
+    float4 position;
+    int type;
+    float intensity;
+    //float radius;
 };
 
 struct TerrainData
@@ -88,21 +92,32 @@ float3 computePhongLighting(
     float shininess
 )
 {
-    float3 light_direction = -normalize(light.direction.xyz);
+    float3 light_direction = normalize(-light.direction.xyz);
     float3 directionToCamera = normalize(worldPositon - camera.position.xyz);
-
+    
+    light.color.rgb *= light.intensity;
+    
+    float attenuation = 1.0;
+    if (light.type != 0)
+    {
+        float distance = length(light.position.xyz - worldPositon.xyz);
+        attenuation = 1.0 / (0.032 * distance * distance + 0.09 * distance + 1.0);
+        light_direction = normalize(light.position.xyz - worldPositon.xyz);
+    }
+    
 	//AMBIENT LIGHT
     float3 ambient_light = ka * ia;
 
 	//DIFFUSE LIGHT
     float amount_diffuse_light = max(dot(light_direction.xyz, normal), 0.0);
-    float3 diffuse_light = kd * (light.color.rgb * id) * amount_diffuse_light;
+    
+    float3 diffuse_light = kd * (light.color.rgb * id) * amount_diffuse_light * attenuation;
 
 	//SPECULAR LIGHT
     float3 reflected_light = reflect(light_direction.xyz, normal);
     float amount_specular_light = pow(max(0.0, dot(reflected_light, directionToCamera)), shininess);
 
-    float3 specular_light = ks * amount_specular_light * is;
+    float3 specular_light = ks * amount_specular_light * is * attenuation;
 
     float3 final_light = ambient_light + diffuse_light + specular_light;
 

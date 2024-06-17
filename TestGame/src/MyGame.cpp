@@ -25,7 +25,9 @@ void MyGame::onCreate()
 
 	auto resourceManager = getResourceManager();
 
-	auto ball = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/sphere.obj");
+	auto ball = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/sphere_hq.obj");
+	auto cube = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/cume.obj");
+	auto plane = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/plane.obj");
 	auto suzanna = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/suzanna.obj");
 
 	auto skyTex = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/sky.jpg");
@@ -33,20 +35,23 @@ void MyGame::onCreate()
 	auto tex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_d.jpg");
 	auto tex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_n.jpg");
 
-	auto mtex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/color.jpg");
-	auto mtex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/normal.jpg");
-	auto mtex3 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/metallnes.jpg");
-	auto mtex4 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M/roughness.jpg");
+	auto mtex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M3/color.jpg");
+	auto mtex2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M3/normal.jpg");
+	auto mtex3 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M3/metallnes.jpg");
+	auto mtex4 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M3/roughness.jpg");
+	auto mtex5 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M3/displacement.jpg");
 
 	auto mtex1_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/color.jpg");
 	auto mtex2_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/normal.jpg");
 	auto mtex3_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/metallnes.jpg");
 	auto mtex4_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/roughness.jpg");
+	auto mtex5_1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/D/displacement.jpg");
 
 	auto mtex1_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/color.jpg");
 	auto mtex2_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/normal.jpg");
 	auto mtex3_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/metallnes.jpg");
 	auto mtex4_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/roughness.jpg");
+	auto mtex5_2 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/M2/displacement.jpg");
 
 	auto cliff = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/ground.jpg");
 	auto ground = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/sand.jpg");
@@ -62,25 +67,32 @@ void MyGame::onCreate()
 	skyMat->addTexture(skyTex);
 	skyMat->setCullMode(CullMode::Front);
 
-	mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	auto lMat = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/LightShader.hlsl");
+	lMat->addTexture(skyTex);
+	lMat->setCullMode(CullMode::Back);
+
+	mat1 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/Base2.hlsl");
 	mat1->addTexture(mtex1_2);
 	mat1->addTexture(mtex2_2);
 	mat1->addTexture(mtex3_2);
 	mat1->addTexture(mtex4_2);
+	mat1->addTexture(mtex5_2);
 	mat1->setCullMode(CullMode::Back);
 
-	mat2 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat2 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/Base2.hlsl");
 	mat2->addTexture(mtex1);
 	mat2->addTexture(mtex2);
 	mat2->addTexture(mtex3);
 	mat2->addTexture(mtex4);
+	mat2->addTexture(mtex5);
 	mat2->setCullMode(CullMode::Back);
 
-	mat3 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/BRDF.hlsl");
+	mat3 = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/Base2.hlsl");
 	mat3->addTexture(mtex1_1);
 	mat3->addTexture(mtex2_1);
 	mat3->addTexture(mtex3_1);
 	mat3->addTexture(mtex4_1);
+	mat3->addTexture(mtex5_1);
 	mat3->setCullMode(CullMode::Back);
 
 	//post process
@@ -105,10 +117,11 @@ void MyGame::onCreate()
 
 		m_s1 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s1->createComponent<MeshComponent>();
-		meshComp->setMesh(ball);
-		meshComp->addMaterial(mat1);
+		meshComp->setMesh(plane);
+		meshComp->addMaterial(mat3);
 		auto transform = m_s1->getTransform();
-		transform->setPosition(Vector3D(0, 1, 1));
+		transform->setPosition(Vector3D(0, 0, 1));
+		transform->setScale(Vector3D(10, 10, 10));
 	}
 	
 	//ball
@@ -116,10 +129,10 @@ void MyGame::onCreate()
 
 		m_s2 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s2->createComponent<MeshComponent>();
-		meshComp->setMesh(ball);
+		meshComp->setMesh(cube);
 		meshComp->addMaterial(mat2);
 		auto transform = m_s2->getTransform();
-		transform->setPosition(Vector3D(3, 1, 1));
+		transform->setPosition(Vector3D(3, 3, 1));
 	}	
 	
 	//ball
@@ -128,9 +141,9 @@ void MyGame::onCreate()
 		m_s3 = getWorld()->createEntity<Entity>();
 		auto meshComp = m_s3->createComponent<MeshComponent>();
 		meshComp->setMesh(ball);
-		meshComp->addMaterial(mat3);
+		meshComp->addMaterial(mat1);
 		auto transform = m_s3->getTransform();
-		transform->setPosition(Vector3D(-3, 1, 1));
+		transform->setPosition(Vector3D(-3, 3, 1));
 	}
 
 	//terrain
@@ -165,12 +178,16 @@ void MyGame::onCreate()
 
 	//light
 	{
-		m_entity = getWorld()->createEntity<Entity>();
-		auto lightComponent = m_entity->createComponent<LightComponent>();
+		m_light = getWorld()->createEntity<Entity>();
+		auto lightComponent = m_light->createComponent<LightComponent>();
+		auto meshComponent = m_light->createComponent<MeshComponent>();
+		meshComponent->setMesh(ball);
+		meshComponent->addMaterial(lMat);
 		lightComponent->setColor(Vector4D(1.0f, 1.0f, 1.0f, 1));
-		lightComponent->setType(LightComponent::LightType::Directional);
-		m_entity->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
-		m_entity->getTransform()->setPosition(Vector3D(0, 200, 0));
+		lightComponent->setType(LightComponent::LightType::Point);
+		m_light->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
+		m_light->getTransform()->setPosition(Vector3D(0, 5, 0));
+		m_light->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}
 
 	//text
@@ -210,7 +227,7 @@ void MyGame::onUpdate(f32 deltaTime)
 	Game::onUpdate(deltaTime);
 	m_rotation += 1.57f * deltaTime/ 2;
 
-	m_s1->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
+	//m_s1->getTransform()->setRotation(Vector3D(m_rotation / 4, m_rotation, 0.0));
 	m_s2->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
 	m_s3->getTransform()->setRotation(Vector3D(0.0, m_rotation, 0.0));
 
@@ -305,25 +322,31 @@ void MyGame::dramImgui()
 	{
 		if (ImGui::Begin("Speed"))
 		{
+			ImGui::Text("App avarage: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::SliderFloat("Speed factor", &m_speed, 0.0f, 40.0f);
-			ImGui::SliderFloat("Reflectance", &m_reflectance, 0.0f, 1.0f);
-			ImGui::Text("App avarage: %.3f ms/frame (%.1f FPS)",1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::ColorEdit3("Color", m_color);
+			ImGui::SliderFloat("light X", &m_x, -10.0f, 10.0f);
+			ImGui::SliderFloat("light Y", &m_y, -10.0f, 10.0f);
+			ImGui::SliderFloat("light Z", &m_z, -10.0f, 10.0f);
+			ImGui::SliderFloat("light Intensity", &m_intensity, 0.0f, 1000.0f);
+			if (ImGui::Button("Reset"))
+			{
+				m_speed = 1.0;
+				m_x = 0.0;
+				m_y = 5.0;
+				m_z = 0.0;
+				m_intensity = 1.0;
+				m_color[0] = 1.0;
+				m_color[1] = 1.0;
+				m_color[2] = 1.0;
+			}
 		}
 		ImGui::End();
 	}
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	mat1->setMetallic(m_metallic);
-	mat1->setRoughness(m_roughness);
-	mat1->setReflectance(m_reflectance);
-
-	mat2->setMetallic(m_metallic);
-	mat2->setRoughness(m_roughness);
-	mat2->setReflectance(m_reflectance);
-	
-	mat3->setMetallic(m_metallic);
-	mat3->setRoughness(m_roughness);
-	mat3->setReflectance(m_reflectance);
-
+	m_light->getTransform()->setPosition(Vector3D(m_x, m_y, m_z));
+	m_light->getComponent<LightComponent>()->setIntensity(m_intensity);
+	m_light->getComponent<LightComponent>()->setColor(Vector3D(m_color[0], m_color[1], m_color[2]));
 }

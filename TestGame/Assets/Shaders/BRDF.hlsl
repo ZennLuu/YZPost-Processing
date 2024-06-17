@@ -39,7 +39,7 @@ float D_GGX(float NoH, float roughness)
     float alpha2 = alpha * alpha;
     float NoH2 = NoH * NoH;
     float b = (NoH2 * (alpha2 - 1.0) + 1.0);
-    return alpha2 * M_RECIPROCAL_PI / (b * b);
+    return alpha2 / (M_PI * b * b);
 }
 
 float G1_GGX_Shlick(float NoV, float roughness)
@@ -59,10 +59,10 @@ float3 microfacetBRDF(float3 L, float3 V, float3 N,
 {
     float3 H = normalize(V + L);
     
-    float NoV = clamp(dot(N, V), 0.0, 1.0);
-    float NoL = clamp(dot(N, L), 0.0, 1.0);
-    float NoH = clamp(dot(N, H), 0.0, 1.0);
-    float VoH = clamp(dot(V, H), 0.0, 1.0);
+    float NoV = max(dot(N, V), 0.0);
+    float NoL = max(dot(N, L), 0.0);
+    float NoH = max(dot(N, H), 0.0);
+    float VoH = max(dot(V, H), 0.0);
     
     roughness = max(roughness, 0.0001);
     
@@ -77,7 +77,7 @@ float3 microfacetBRDF(float3 L, float3 V, float3 N,
  
     float3 spec = (F * D * G) / (4.0 * max(NoV, 0.001) * max(NoL, 0.001));
     
-    float3 rhoD = baseColor;
+    float3 rhoD = baseColor / M_PI;
     
     // optionally
     rhoD *= float3(1.0, 1.0, 1.0) - F;
@@ -85,7 +85,7 @@ float3 microfacetBRDF(float3 L, float3 V, float3 N,
     
     rhoD *= (1.0 - metallic);
     
-    float3 diff = rhoD * M_RECIPROCAL_PI;
+    float3 diff = rhoD;
    
     return diff + spec;
     
@@ -103,38 +103,46 @@ sampler MetallicSampler : register(s2);
 Texture2D Roughness : register(t3);
 sampler RoughnessSampler : register(s3);
 
-TextureCube<float4> CubeMap : register(t4);
+Texture2D Displacement: register(t4);
+sampler DisplacementSampler : register(s4);
+
 
 float4 psmain(VPS_INOUT input) : SV_TARGET
 {
     float2 uv = input.texcoord.xy;
+
+    
+    float3 L, N, V;
+
+    V = normalize(camera.position.xyz - input.position.xyz);
+
+    
     float4 color = Color.Sample(ColorSampler, uv);
     float4 normal = Normal.Sample(NormalSampler, uv);
     
     normal.xyz = normalize(normal.xyz * 2.0 - 1.0);
     normal.xyz = mul(normal.xyz, input.tbn);
-    
-    float3 L, N, V;
-   
-    L = normalize(-light.direction.xyz);
+       
+    L = normalize(light.direction.xyz);
     N = normal.xyz;
     //N = input.normal.xyz;
-    V = normalize(camera.position.xyz - input.position.xyz);
+    
+    
     
     float metallic = Metallic.Sample(MetallicSampler, uv).r;
     float roughness = Roughness.Sample(RoughnessSampler, uv).r;
     float reflectance = 0.5;
 
     float3 finalColor = rgb2lin(float3(0, 0, 0));
-    
-    float irradiance = max(dot(light.direction.xyz, N), 0.0) * 10;
+    float irradiance = max(dot(L, N), 0.0) * 10;
  
-    reflectance = material.reflectance;
+    //reflectance = material.reflectance;
     
     if (irradiance > 0.0)
     {
         float3 brdf = microfacetBRDF(L, V, N, metallic, roughness, color.rgb, reflectance);
-        finalColor = brdf * irradiance * light.color.rgb;
+        finalColor = brdf * light.color.rgb * irradiance;
+
     }
     
     return float4(finalColor, 1.0);

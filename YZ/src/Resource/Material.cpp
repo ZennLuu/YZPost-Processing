@@ -14,9 +14,14 @@ Material::Material(const wchar_t* path, ResourceManager* manager) : Resource(pat
 
 	m_vertex_shader = rsys->createVertexShader(path, "vsmain");
 	if (!m_vertex_shader) DX3DError("Material not created successfully");
-
+	
 	m_pixel_shader = rsys->createPixelShader(path, "psmain");
-	if (!m_pixel_shader) DX3DError("Material not created successfully");
+	if (!m_pixel_shader)
+	{
+		DX3DError("Material not created successfully");
+	}
+	else 
+		DX3DInfo("Material created successfully");
 
 }
 

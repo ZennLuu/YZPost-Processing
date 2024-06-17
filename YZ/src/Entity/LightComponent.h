@@ -10,8 +10,7 @@ public:
 	{
 		Directional = 0,
 		Point,
-		Spot,
-		Emissive
+		Spot
 	};
 
 public:
@@ -36,9 +35,7 @@ protected:
 private:
 	LightType m_type = LightType::Directional;
 
-	Vector4D m_position = Vector4D(0, 0, 0, 1);
 	Vector4D m_color = Vector4D(1, 1, 1, 1);
 	float m_intensity = 1;
 	float m_radius = 1;
 };
-

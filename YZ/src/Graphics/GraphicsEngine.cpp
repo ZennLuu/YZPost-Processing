@@ -46,11 +46,11 @@ struct CameraData
 __declspec(align(16))
 struct LightData
 {
-	//LightComponent::LightType type;
 	Vector4D color;
 	Vector4D direction;
-	//Vector4D position;
-	//float intensity;
+	Vector4D position;
+	int type;
+	float intensity;
 	//float radius;
 };
 
@@ -161,8 +161,10 @@ void GraphicsEngine::update()
 		auto t = l->getEntity()->getTransform();
 		Matrix4x4 w;
 		t->getWorldMatrix(w);
+		constData.light.type = (int)l->getType();
 		constData.light.direction = w.getZDirection();
-		//constData.light.position = t->getPosition();
+		constData.light.position = t->getPosition();
+		constData.light.intensity = l->getIntensity();
 		//constData.light.radius = l->getRadius();
 		constData.light.color = l->getColor();
 	}
