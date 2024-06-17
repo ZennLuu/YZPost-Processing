@@ -41,6 +41,7 @@ private:
 	float m_z = 0;
 	float m_intensity = 1.0;
 	float m_color[3] = { 1, 1, 1 };
+	float m_rotationL[3] = { 0,0,0 };
 
 	float m_speed = 1.0;
 

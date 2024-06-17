@@ -318,17 +318,28 @@ void MyGame::dramImgui()
 
 	static char buffer[1024];
 
+	const char* type[3] =
+	{
+		"Directional",
+		"Point",
+		"Spot"
+	};
+
+	static int type_id = 0;
+
 	if (m_toggleimgui)
 	{
 		if (ImGui::Begin("Speed"))
 		{
 			ImGui::Text("App avarage: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::SliderFloat("Speed factor", &m_speed, 0.0f, 40.0f);
+			ImGui::SliderFloat("Speed factor", &m_speed, 0.0f, 10.0f);
+			ImGui::Combo("Light type", &type_id, type, 3);
 			ImGui::ColorEdit3("Color", m_color);
-			ImGui::SliderFloat("light X", &m_x, -10.0f, 10.0f);
-			ImGui::SliderFloat("light Y", &m_y, -10.0f, 10.0f);
-			ImGui::SliderFloat("light Z", &m_z, -10.0f, 10.0f);
-			ImGui::SliderFloat("light Intensity", &m_intensity, 0.0f, 1000.0f);
+			ImGui::SliderFloat3("Direction", m_rotationL, 0.0, 1.0);
+			ImGui::SliderFloat("Light X", &m_x, -10.0f, 10.0f);
+			ImGui::SliderFloat("Light Y", &m_y, -10.0f, 10.0f);
+			ImGui::SliderFloat("Light Z", &m_z, -10.0f, 10.0f);
+			ImGui::SliderFloat("Light Intensity", &m_intensity, 0.0f, 1000.0f);
 			if (ImGui::Button("Reset"))
 			{
 				m_speed = 1.0;
@@ -339,6 +350,9 @@ void MyGame::dramImgui()
 				m_color[0] = 1.0;
 				m_color[1] = 1.0;
 				m_color[2] = 1.0;
+				m_rotationL[0] = 0.0;
+				m_rotationL[1] = 0.0;
+				m_rotationL[2] = 0.0;
 			}
 		}
 		ImGui::End();
@@ -346,6 +360,22 @@ void MyGame::dramImgui()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+	switch (type_id)
+	{
+	case 0:
+		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Directional);
+		break;
+	case 1:
+		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Point);
+		break;
+	case 2:
+		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Spot);
+		break;
+	default:
+		break;
+	}
+
+	m_light->getTransform()->setRotation(Vector3D(m_rotationL[0], m_rotationL[1], m_rotationL[2]));
 	m_light->getTransform()->setPosition(Vector3D(m_x, m_y, m_z));
 	m_light->getComponent<LightComponent>()->setIntensity(m_intensity);
 	m_light->getComponent<LightComponent>()->setColor(Vector3D(m_color[0], m_color[1], m_color[2]));

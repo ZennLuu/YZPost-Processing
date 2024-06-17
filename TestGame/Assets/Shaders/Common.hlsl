@@ -62,6 +62,7 @@ struct MaterialData
     float roughness;
     float reflectance;
 };
+
 cbuffer constant : register(b0)
 {
     row_major float4x4 world;
@@ -98,11 +99,24 @@ float3 computePhongLighting(
     light.color.rgb *= light.intensity;
     
     float attenuation = 1.0;
-    if (light.type != 0)
+    if (light.type == 1)
     {
+        // Point light
+        light_direction = normalize(light.position.xyz - worldPositon.xyz);
+        
         float distance = length(light.position.xyz - worldPositon.xyz);
         attenuation = 1.0 / (0.032 * distance * distance + 0.09 * distance + 1.0);
+    }
+    else if (light.type == 2)
+    {
+        // Spot light
         light_direction = normalize(light.position.xyz - worldPositon.xyz);
+        
+        float outerCone = 0.90;
+        float innerCone = 0.95;
+        
+        float angle = dot(normalize(light.direction.xyz), -light_direction);
+        attenuation = clamp((angle - outerCone) / (innerCone - outerCone), 0.0, 1.0);
     }
     
 	//AMBIENT LIGHT
@@ -112,8 +126,8 @@ float3 computePhongLighting(
     float amount_diffuse_light = max(dot(light_direction.xyz, normal), 0.0);
     
     float3 diffuse_light = kd * (light.color.rgb * id) * amount_diffuse_light * attenuation;
-
-	//SPECULAR LIGHT
+	
+    //SPECULAR LIGHT
     float3 reflected_light = reflect(light_direction.xyz, normal);
     float amount_specular_light = pow(max(0.0, dot(reflected_light, directionToCamera)), shininess);
 
