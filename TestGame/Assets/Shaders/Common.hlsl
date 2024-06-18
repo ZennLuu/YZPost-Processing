@@ -134,7 +134,7 @@ float3 computePhongLighting(
         }
     
 	//AMBIENT LIGHT
-        float3 ambient_light = ka * ia;
+        float3 ambient_light = ka * ia * attenuation;
 
 	//DIFFUSE LIGHT
         float amount_diffuse_light = max(dot(light_direction.xyz, normal), 0.0);
