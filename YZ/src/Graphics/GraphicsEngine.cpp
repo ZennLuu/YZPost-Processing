@@ -252,8 +252,6 @@ void GraphicsEngine::update()
 		context->setVertexBuffer(mesh->m_vertex_buffer);
 		context->setIndexBuffer(mesh->m_index_buffer);
 
-		constData.lights.lightindex = m->getLightParent();
-
 		for (auto i = 0; i < mesh->getNumMaterialSlots(); i++)
 		{
 			if (i >= materials.size()) break;
