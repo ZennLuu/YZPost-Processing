@@ -174,12 +174,60 @@ void GraphicsEngine::update()
 		constData.light[lightnumber].intensity = l->getIntensity();
 		//constData.light.radius = l->getRadius();
 		constData.light[lightnumber].color = l->getColor();
+
+		auto m = l->getEntity()->getComponent<MeshComponent>();
+		
+		if (m != nullptr) 
+		{
+			auto transform = m->getEntity()->getTransform();
+
+			transform->getWorldMatrix(constData.world);
+
+			const auto materials = m->getMaterials();
+
+			auto mesh = m->getMesh().get();
+
+			context->setVertexBuffer(mesh->m_vertex_buffer);
+			context->setIndexBuffer(mesh->m_index_buffer);
+
+			constData.lights.lightindex = lightnumber;
+
+			for (auto i = 0; i < mesh->getNumMaterialSlots(); i++)
+			{
+				if (i >= materials.size()) break;
+				auto mat = materials[i].get();
+
+				m_render_system->setCullMode(mat->getCullMode());
+
+				constData.material.metallic = mat->m_metallic;
+				constData.material.roughness = mat->m_roughness;
+				constData.material.reflectance = mat->m_reflectance;
+
+				mat->setData(&constData, sizeof(ConstantData));
+				context->setConstantBuffer(mat->m_constant_buffer);
+
+				context->setVertexShader(mat->m_vertex_shader);
+				context->setPixelShader(mat->m_pixel_shader);
+
+				context->setTexture(&mat->m_vec_textures[0], (unsigned int)mat->m_vec_textures.size());
+
+				auto slot = mesh->getMaterialSlot(i);
+				context->drawIndexedTriangleList((unsigned int)slot.num_indices, (unsigned int)slot.start_index, 0);
+			}
+		}
+
+
 		lightnumber++;
 	}
 	constData.lights.lightnumber = lightnumber;
 
 	for (auto m : m_meshes)
 	{
+		auto isLight = m->getEntity()->getComponent<LightComponent>();
+
+		if (isLight != nullptr)
+			continue;
+
 		auto transform = m->getEntity()->getTransform();
 
 		transform->getWorldMatrix(constData.world);
