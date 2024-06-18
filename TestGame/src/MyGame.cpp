@@ -183,7 +183,6 @@ void MyGame::onCreate()
 		auto meshComponent = m_light->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
-		meshComponent->setLightParent(0);
 		lightComponent->setColor(Vector4D(1.0f, 1.0f, 1.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Point);
 		m_light->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
@@ -198,7 +197,6 @@ void MyGame::onCreate()
 		auto meshComponent = lentity->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
-		meshComponent->setLightParent(1);
 		lightComponent->setColor(Vector4D(1.0f, 0.0f, 1.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Directional);
 		lentity->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
@@ -213,7 +211,6 @@ void MyGame::onCreate()
 		auto meshComponent = lentity->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
-		meshComponent->setLightParent(2);
 		lightComponent->setColor(Vector4D(0.0f, 1.0f, 0.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Spot);
 		lentity->getTransform()->setRotation(Vector3D(1.650f, 0, 0));
