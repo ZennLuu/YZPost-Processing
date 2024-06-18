@@ -21,6 +21,8 @@ public:
 	void setGravity(f32 g);
 	f32 getGravity();
 
+	void setLightParent(const int index);
+	int getLightParent();
 protected:
 	virtual void onCreateInternal();
 private:
@@ -28,5 +30,6 @@ private:
 	std::vector<MaterialPtr> m_materials;
 	
 	f32 m_gravity = 9.8;
+	int m_index = 0;
 };
 

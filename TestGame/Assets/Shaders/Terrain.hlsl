@@ -80,7 +80,7 @@ float4 psmain(VPS_INOUT input) : SV_TARGET
     
         10.0);
     
-    final_light = computeFogColor(fog, camera, input.worldPosition.xyz, final_light);
+    //final_light = computeFogColor(fog, camera, input.worldPosition.xyz, final_light);
     
     return float4(final_light, alpha);
 }

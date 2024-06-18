@@ -12,6 +12,9 @@ VPS_INOUT vsmain(VS_INPUT input)
     output.position = mul(output.position, camera.proj);
     output.texcoord = input.texcoord;
     output.normal = normalize(mul(input.normal, (float3x3) world));
+    output.tbn[0] = normalize(mul(input.tangent, (float3x3) world));
+    output.tbn[1] = normalize(mul(input.binormal, (float3x3) world));
+    output.tbn[2] = output.normal;
     return output;
 }
 
@@ -25,12 +28,16 @@ float4 psmain(VPS_INOUT input) : SV_TARGET
 {
     float2 uv = input.texcoord.xy;
     float4 color = Color.Sample(ColorSampler, uv);
+    float4 normal = Normal.Sample(NormalSampler, uv);
+    
+    normal.xyz = (normal.xyz * 2.0) - 1.0;
+    normal.xyz = mul(normal.xyz, input.tbn);
     
     float3 final_light = computePhongLighting(
         camera,
         light,
         input.worldPosition.xyz,
-        input.normal.xyz,
+        normal.xyz,
         
         4,
         color.rgb * float3(0.09,0.09,0.09),
@@ -43,7 +50,7 @@ float4 psmain(VPS_INOUT input) : SV_TARGET
     
         10.0);
 
-    final_light = computeFogColor(fog, camera, input.worldPosition.xyz, final_light);
+    //final_light = computeFogColor(fog, camera, input.worldPosition.xyz, final_light);
     
     color.rgb = final_light;
     

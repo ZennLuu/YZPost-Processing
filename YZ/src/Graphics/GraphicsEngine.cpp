@@ -86,16 +86,23 @@ struct MaterialData
 };
 
 __declspec(align(16))
+struct MulLightData 
+{
+	int lightnumber;
+	int lightindex;
+};
+__declspec(align(16))
 struct ConstantData
 {
 	Matrix4x4 world;
 	float time;
 	CameraData camera;
-	LightData light;
 	TerrainData terrain;
 	WaterData water;
 	FogData fog; 
 	MaterialData material;
+	LightData light[16];
+	MulLightData lights;
 };
 
 
@@ -155,19 +162,21 @@ void GraphicsEngine::update()
 		c->getProjectionMatrix(constData.camera.proj);
 	}
 
-
+	int lightnumber = 0;
 	for (auto l : m_lights)
 	{
 		auto t = l->getEntity()->getTransform();
 		Matrix4x4 w;
 		t->getWorldMatrix(w);
-		constData.light.type = (int)l->getType();
-		constData.light.direction = w.getZDirection();
-		constData.light.position = t->getPosition();
-		constData.light.intensity = l->getIntensity();
+		constData.light[lightnumber].type = (int)l->getType();
+		constData.light[lightnumber].direction = w.getZDirection();
+		constData.light[lightnumber].position = t->getPosition();
+		constData.light[lightnumber].intensity = l->getIntensity();
 		//constData.light.radius = l->getRadius();
-		constData.light.color = l->getColor();
+		constData.light[lightnumber].color = l->getColor();
+		lightnumber++;
 	}
+	constData.lights.lightnumber = lightnumber;
 
 	for (auto m : m_meshes)
 	{
@@ -195,6 +204,7 @@ void GraphicsEngine::update()
 		context->setVertexBuffer(mesh->m_vertex_buffer);
 		context->setIndexBuffer(mesh->m_index_buffer);
 
+		constData.lights.lightindex = m->getLightParent();
 
 		for (auto i = 0; i < mesh->getNumMaterialSlots(); i++)
 		{
@@ -348,7 +358,7 @@ void GraphicsEngine::addComponent(Component* component)
 	}
 	else if (auto c = dynamic_cast<LightComponent*>(component))
 	{
-		if (!m_lights.size()) m_lights.emplace(c);
+		/*if (!m_lights.size())*/ m_lights.emplace(c);
 	}
 	else if (auto c = dynamic_cast<TerrainComponent*>(component))
 	{

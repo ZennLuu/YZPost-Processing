@@ -63,21 +63,28 @@ struct MaterialData
     float reflectance;
 };
 
+struct MulLightData
+{
+    int lightnumber;
+    int lightindex;
+};
+
 cbuffer constant : register(b0)
 {
     row_major float4x4 world;
     float time;
     CameraData camera;
-    LightData light;
     TerrainData terrain;
     WaterData water;
     FogData fog;
     MaterialData material;
+    LightData light[16];
+    MulLightData lights;
 };
 
 float3 computePhongLighting(
     CameraData camera,
-    LightData light,
+    LightData light[16],
     float3 worldPositon,
     float3 normal,
     
@@ -93,49 +100,57 @@ float3 computePhongLighting(
     float shininess
 )
 {
-    float3 light_direction = normalize(-light.direction.xyz);
-    float3 directionToCamera = normalize(worldPositon - camera.position.xyz);
+    float3 final_light = 0;
     
-    light.color.rgb *= light.intensity;
-    
-    float attenuation = 1.0;
-    if (light.type == 1)
+    for (int i = 0; i < 16; i++)
     {
+        if (i >= lights.lightnumber)
+            break;
+            
+        float3 light_direction = normalize(-light[i].direction.xyz);
+        float3 directionToCamera = normalize(worldPositon - camera.position.xyz);
+    
+        light[i].color.rgb *= light[i].intensity;
+        
+        float attenuation = 1.0;
+        if (light[i].type == 1)
+        {
         // Point light
-        light_direction = normalize(light.position.xyz - worldPositon.xyz);
+            light_direction = normalize(light[i].position.xyz - worldPositon.xyz);
         
-        float distance = length(light.position.xyz - worldPositon.xyz);
-        attenuation = 1.0 / (0.032 * distance * distance + 0.09 * distance + 1.0);
-    }
-    else if (light.type == 2)
-    {
+            float distance = length(light[i].position.xyz - worldPositon.xyz);
+            attenuation = 1.0 / (0.032 * distance * distance + 0.09 * distance + 1.0);
+        }
+        else if (light[i].type == 2)
+        {
         // Spot light
-        light_direction = normalize(light.position.xyz - worldPositon.xyz);
+            light_direction = normalize(light[i].position.xyz - worldPositon.xyz);
         
-        float outerCone = 0.90;
-        float innerCone = 0.95;
+            float outerCone = 0.90;
+            float innerCone = 0.95;
         
-        float angle = dot(normalize(light.direction.xyz), -light_direction);
-        attenuation = clamp((angle - outerCone) / (innerCone - outerCone), 0.0, 1.0);
-    }
+            float angle = dot(normalize(light[i].direction.xyz), -light_direction);
+            attenuation = clamp((angle - outerCone) / (innerCone - outerCone), 0.0, 1.0);
+        }
     
 	//AMBIENT LIGHT
-    float3 ambient_light = ka * ia;
+        float3 ambient_light = ka * ia;
 
 	//DIFFUSE LIGHT
-    float amount_diffuse_light = max(dot(light_direction.xyz, normal), 0.0);
+        float amount_diffuse_light = max(dot(light_direction.xyz, normal), 0.0);
     
-    float3 diffuse_light = kd * (light.color.rgb * id) * amount_diffuse_light * attenuation;
+        float3 diffuse_light = kd * (light[i].color.rgb * id) * amount_diffuse_light * attenuation;
 	
     //SPECULAR LIGHT
-    float3 reflected_light = reflect(light_direction.xyz, normal);
-    float amount_specular_light = pow(max(0.0, dot(reflected_light, directionToCamera)), shininess);
+        float3 reflected_light = reflect(light_direction.xyz, normal);
+        float amount_specular_light = pow(max(0.0, dot(reflected_light, directionToCamera)), shininess);
 
-    float3 specular_light = ks * amount_specular_light * is * attenuation;
+        float3 specular_light = ks * amount_specular_light * is * attenuation;
 
-    float3 final_light = ambient_light + diffuse_light + specular_light;
+        final_light += ambient_light + diffuse_light + specular_light;
+    }
 
-    return final_light;
+        return final_light;
 }
 
 float3 computeNormalFromHeightMa(
@@ -161,7 +176,6 @@ float3 computeNormalFromHeightMa(
     float3 normal = float3(-(r - l) * 0.5, 1, -(b - t) * 0.5);
     
     return normalize(normal);
-
 }
 
 float computeFog(

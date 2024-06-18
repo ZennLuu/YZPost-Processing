@@ -183,11 +183,42 @@ void MyGame::onCreate()
 		auto meshComponent = m_light->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
+		meshComponent->setLightParent(0);
 		lightComponent->setColor(Vector4D(1.0f, 1.0f, 1.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Point);
 		m_light->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
-		m_light->getTransform()->setPosition(Vector3D(0, 5, 0));
+		m_light->getTransform()->setPosition(Vector3D(-4, 5, 0));
 		m_light->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
+	}	
+
+	//light
+	{
+		auto lentity = getWorld()->createEntity<Entity>();
+		auto lightComponent = lentity->createComponent<LightComponent>();
+		auto meshComponent = lentity->createComponent<MeshComponent>();
+		meshComponent->setMesh(ball);
+		meshComponent->addMaterial(lMat);
+		meshComponent->setLightParent(1);
+		lightComponent->setColor(Vector4D(1.0f, 0.0f, 1.0f, 1));
+		lightComponent->setType(LightComponent::LightType::Directional);
+		lentity->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
+		lentity->getTransform()->setPosition(Vector3D(0, 4, 0));
+		lentity->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
+	}
+
+	//light
+	{
+		auto lentity = getWorld()->createEntity<Entity>();
+		auto lightComponent = lentity->createComponent<LightComponent>();
+		auto meshComponent = lentity->createComponent<MeshComponent>();
+		meshComponent->setMesh(ball);
+		meshComponent->addMaterial(lMat);
+		meshComponent->setLightParent(2);
+		lightComponent->setColor(Vector4D(0.0f, 1.0f, 0.0f, 1));
+		lightComponent->setType(LightComponent::LightType::Spot);
+		lentity->getTransform()->setRotation(Vector3D(1.650f, 0, 0));
+		lentity->getTransform()->setPosition(Vector3D(0, 6, 0));
+		lentity->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}
 
 	//text
@@ -325,7 +356,7 @@ void MyGame::dramImgui()
 		"Spot"
 	};
 
-	static int type_id = 0;
+	static int type_id = 1;
 
 	if (m_toggleimgui)
 	{

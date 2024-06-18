@@ -49,6 +49,16 @@ f32 MeshComponent::getGravity()
 	return m_gravity;
 }
 
+void MeshComponent::setLightParent(const int index)
+{
+	m_index = index;
+}
+
+int MeshComponent::getLightParent()
+{
+	return m_index;
+}
+
 void MeshComponent::onCreateInternal()
 {
 	m_entity->getWorld()->getGame()->getGraphicsEngine()->addComponent(this);
