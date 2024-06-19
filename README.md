@@ -1,9 +1,11 @@
-# YZPost-Processing
+# YZEngine
+Game engine
 Post-Processing shaders
+etc.
 
 This project created to test concepts and present results.
 
-MyGame.cp file in TestGame folder implements game's main functionality as setup object, shaders etc.
+MyGame.cpp file in TestGame folder implements game's main functionality as setup object, shaders etc.
 main.cpp in the same folder starting game instance and run's it while game is working.
 
 Shader files available in TestGame/Assets/Shaders folder
