@@ -20,16 +20,21 @@ void MyGame::onCreate()
 
 	srand((ui32)time(nullptr));
 
+	// Loading font
 	FontUtility fontUtility;
 	fontUtility.createFont(L"Bahnschrift", 16, L"Assets\\Fonts\\");
 
 	auto resourceManager = getResourceManager();
+	
+	// Adding resources
 
+	// Models
 	auto ball = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/sphere_hq.obj");
 	auto cube = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/cume.obj");
 	auto plane = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/plane.obj");
 	auto suzanna = resourceManager->createResourceFromFile<Mesh>(L"Assets/Meshes/suzanna.obj");
 
+	// Textures
 	auto skyTex = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/sky.jpg");
 
 	auto tex1 = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/brick_d.jpg");
@@ -63,6 +68,7 @@ void MyGame::onCreate()
 
 	auto cross = resourceManager->createResourceFromFile<Texture>(L"Assets/Textures/UI/cross.png");
 
+	// Creating materials
 	auto skyMat = resourceManager->createResourceFromFile<Material>(L"Assets/Shaders/SkyBox.hlsl");
 	skyMat->addTexture(skyTex);
 	skyMat->setCullMode(CullMode::Front);
@@ -95,10 +101,15 @@ void MyGame::onCreate()
 	mat3->addTexture(mtex5_1);
 	mat3->setCullMode(CullMode::Back);
 
+	// Creating entities with specific components
 	//post process
 	{
+		// creating entity
 		auto entity = getWorld()->createEntity<Entity>();
+		
+		// creating post-process component
 		m_postProcess = entity->createComponent<PostProcessComponent>();
+		// setting shader for post process component(will compile this shader at function call);
 		m_postProcess->setShader(L"Assets/Shaders/DefaultPostProcess.hlsl");
 	}
 
@@ -106,8 +117,12 @@ void MyGame::onCreate()
 	{
 		m_skybox = getWorld()->createEntity<Entity>();
 		auto meshComp = m_skybox->createComponent<MeshComponent>();
+		// setting mesh to mesh component
 		meshComp->setMesh(ball);
+		// setting material
 		meshComp->addMaterial(skyMat);
+		
+		// transforming
 		auto transform = m_skybox->getTransform();
 		transform->setScale(Vector3D(1000, 1000, 1000));
 	}	
@@ -150,7 +165,11 @@ void MyGame::onCreate()
 	{
 		auto entity = getWorld()->createEntity<Entity>();
 		auto terrainComp = entity->createComponent<TerrainComponent>();
+		
+		// setting height map for terrain
 		terrainComp->setHeightMap(heightMap);
+		
+		// setting textures to use on terrain
 		terrainComp->setCliffMap(cliff);
 		terrainComp->setGroundMap(ground);
 
@@ -163,6 +182,8 @@ void MyGame::onCreate()
 	{
 		auto entity = getWorld()->createEntity<Entity>();
 		auto waterComponent = entity->createComponent<WaterComponent>();
+		
+		// setting height map for waves
 		waterComponent->setWaveHeightMap(waveHeightMap);
 
 		auto transform = entity->getTransform();
@@ -176,7 +197,7 @@ void MyGame::onCreate()
 	//	fogComponent->setData(Vector4D(0.8f, 0.9f, 1.0f, 1.0f), 1000, 10000);
 	//}
 
-	//light
+	//light 1 (combining light and mesh component to see position of light)
 	{
 		m_light = getWorld()->createEntity<Entity>();
 		auto lightComponent = m_light->createComponent<LightComponent>();
@@ -190,7 +211,7 @@ void MyGame::onCreate()
 		m_light->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}	
 
-	//light
+	//light 2
 	{
 		m_light2 = getWorld()->createEntity<Entity>();
 		auto lightComponent = m_light2->createComponent<LightComponent>();
@@ -204,7 +225,7 @@ void MyGame::onCreate()
 		m_light2->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}
 
-	//light
+	//light 3
 	{
 		m_light3 = getWorld()->createEntity<Entity>();
 		auto lightComponent = m_light3->createComponent<LightComponent>();
@@ -222,6 +243,8 @@ void MyGame::onCreate()
 	{
 		m_text = getWorld()->createEntity<Entity>();
 		auto text = m_text->createComponent<TextComponent>();
+		
+		// setting font for text
 		text->setFont(font);
 		text->setText(L"");
 		m_text->getTransform()->setPosition(Vector3D(10, 10, 0));
@@ -244,11 +267,14 @@ void MyGame::onCreate()
 		auto image = m_cross->createComponent<ImageComponent>();
 		image->setImage(cross);
 		image->setSize({ 0,0,50,50 });
+		auto clientSize = m_cross->getWorld()->getGame()->getDisplay()->getClientSize();
+		m_cross->getTransform()->setPosition(Vector3D((f32)(clientSize.width / 2.0f) - 25.0f, (f32)(clientSize.height / 2.0f) - 25.0f, 0));
 	}
 
 	m_player = getWorld()->createEntity<Player>();
 }
 
+// update data each frame
 void MyGame::onUpdate(f32 deltaTime)
 {
 	deltaTime = deltaTime * m_speed;
@@ -275,15 +301,6 @@ void MyGame::onUpdate(f32 deltaTime)
 	auto infoText = std::wstringstream();
 	auto infoText2 = std::wstringstream();
 
-	if (m_5x < 10)
-		m_5x++;
-	else
-		m_5x = 0;
-
-	if (m_5x % 10 == 0)
-		m_fps = 1.0f / deltaTime;
-
-	infoText << L"FPS: " << m_fps << L"\n";
 	infoText << L"Screen Size W: " << (int)clientSize.width << L" H: " << (int)clientSize.height << L"\n";
 	infoText << L"Player coord X: " << (int)playerPos.x << L" Y: " << (int)playerPos.y << L" Z: " << (int)playerPos.z << L"\n";
 
@@ -302,6 +319,7 @@ void MyGame::onUpdate(f32 deltaTime)
 		0
 	));
 
+	// listen for key events
 	if (getInputSystem()->isKeyUp(Key::_1))
 	{
 		m_postProcess->setShader(L"Assets/Shaders/DefaultPostProcess.hlsl");
@@ -339,9 +357,9 @@ void MyGame::onUpdate(f32 deltaTime)
 		m_toggleimgui = !m_toggleimgui;
 	}
 
-	m_cross->getTransform()->setPosition(Vector3D((f32)(clientSize.width / 2.0f) - 25.0f, (f32)(clientSize.height / 2.0f) - 25.0f, 0));
 }
 
+// ImGui menus setup
 void MyGame::dramImgui()
 {
 	ImGui_ImplDX11_NewFrame();

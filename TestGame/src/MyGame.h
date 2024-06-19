@@ -48,9 +48,6 @@ private:
 
 	f32 m_rotation = 0.0f;
 
-	i32 m_fps = 0;
-	i32 m_5x = 0;
-
 	PostProcessComponent* m_postProcess = nullptr;
 
 };
