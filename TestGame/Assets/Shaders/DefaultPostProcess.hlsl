@@ -14,5 +14,7 @@ sampler ColorSampler : register(s0);
 
 float4 psmain(VPS_INOUT input) : SV_TARGET
 {
-    return Color.Sample(ColorSampler, input.texcoord);
+    float2 uv = input.texcoord;
+    
+    return Color.Sample(ColorSampler, uv);
 }
