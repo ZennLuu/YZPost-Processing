@@ -186,36 +186,36 @@ void MyGame::onCreate()
 		lightComponent->setColor(Vector4D(1.0f, 1.0f, 1.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Point);
 		m_light->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
-		m_light->getTransform()->setPosition(Vector3D(-4, 5, 0));
+		//m_light->getTransform()->setPosition(Vector3D(-4, 5, 0));
 		m_light->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}	
 
 	//light
 	{
-		auto lentity = getWorld()->createEntity<Entity>();
-		auto lightComponent = lentity->createComponent<LightComponent>();
-		auto meshComponent = lentity->createComponent<MeshComponent>();
+		m_light2 = getWorld()->createEntity<Entity>();
+		auto lightComponent = m_light2->createComponent<LightComponent>();
+		auto meshComponent = m_light2->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
 		lightComponent->setColor(Vector4D(1.0f, 0.0f, 1.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Directional);
-		lentity->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
-		lentity->getTransform()->setPosition(Vector3D(0, 4, 0));
-		lentity->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
+		m_light2->getTransform()->setRotation(Vector3D(-0.707f, 0, 0));
+		m_light2->getTransform()->setPosition(Vector3D(0, 4, 0));
+		m_light2->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}
 
 	//light
 	{
-		auto lentity = getWorld()->createEntity<Entity>();
-		auto lightComponent = lentity->createComponent<LightComponent>();
-		auto meshComponent = lentity->createComponent<MeshComponent>();
+		m_light3 = getWorld()->createEntity<Entity>();
+		auto lightComponent = m_light3->createComponent<LightComponent>();
+		auto meshComponent = m_light3->createComponent<MeshComponent>();
 		meshComponent->setMesh(ball);
 		meshComponent->addMaterial(lMat);
 		lightComponent->setColor(Vector4D(0.0f, 1.0f, 0.0f, 1));
 		lightComponent->setType(LightComponent::LightType::Spot);
-		lentity->getTransform()->setRotation(Vector3D(1.650f, 0, 0));
-		lentity->getTransform()->setPosition(Vector3D(0, 6, 0));
-		lentity->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
+		m_light3->getTransform()->setRotation(Vector3D(1.650f, 0, 0));
+		m_light3->getTransform()->setPosition(Vector3D(0, 6, 0));
+		m_light3->getTransform()->setScale(Vector3D(0.05, 0.05, 0.05));
 	}
 
 	//text
@@ -292,8 +292,8 @@ void MyGame::onUpdate(f32 deltaTime)
 	infoText2 << L"Lock cursor: Escape\n";
 	infoText2 << L"Jump: Space\n";
 	infoText2 << L"Move: WASD Shift: Accelerate\n";
-	infoText2 << L"1 - Default PostProcess, 2 - Chromatic Abberation, 3 - Vignette\n";
-	infoText2 << L"4 - PS1, 5 - Grayscale, 6 - Black and White, 7 - HDR\n";
+	infoText2 << L"1 - Default PostProcess, 2 - Chromatic Abberation, 3 - Vignette, 4 - PS1\n";
+	infoText2 << L"5 - Grayscale, 6 - Black and White, 7 - HDR, 8 - Edge detection\n";
 
 	textComp2->setText(infoText2.str().c_str());
 	m_guide->getTransform()->setPosition(Vector3D(
@@ -329,6 +329,10 @@ void MyGame::onUpdate(f32 deltaTime)
 	if (getInputSystem()->isKeyUp(Key::_7))
 	{
 		m_postProcess->setShader(L"Assets/Shaders/HDR.hlsl");
+	}    
+	if (getInputSystem()->isKeyUp(Key::_8))
+	{
+		m_postProcess->setShader(L"Assets/Shaders/EdgeDetection.hlsl");
 	}
 	if (getInputSystem()->isKeyUp(Key::M))
 	{
@@ -353,6 +357,21 @@ void MyGame::dramImgui()
 		"Spot"
 	};
 
+	const char* lights[3] =
+	{
+		"Light 1",
+		"Light 2",
+		"Light 3"
+	};
+
+	Entity* l_array[3] =
+	{
+		m_light,
+		m_light2,
+		m_light3
+	};
+
+	static int light_id = 0;
 	static int type_id = 1;
 
 	if (m_toggleimgui)
@@ -361,13 +380,30 @@ void MyGame::dramImgui()
 		{
 			ImGui::Text("App avarage: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::SliderFloat("Speed factor", &m_speed, 0.0f, 10.0f);
+			if (ImGui::Combo("Light", &light_id, lights, 3))
+			{
+				auto t = l_array[light_id]->getTransform();
+				auto l = l_array[light_id]->getComponent<LightComponent>();
+				type_id = (int)l->getType();
+				m_x = t->getPosition().x;
+				m_y = t->getPosition().y;
+				m_z = t->getPosition().z;
+				m_intensity = l->getIntensity();
+				m_color[0] = l->getColor().x;
+				m_color[1] = l->getColor().y;
+				m_color[2] = l->getColor().z;
+				m_rotationL[0] = t->getRotation().x;
+				m_rotationL[1] = t->getRotation().y;
+				m_rotationL[2] = t->getRotation().z;
+
+			}
 			ImGui::Combo("Light type", &type_id, type, 3);
 			ImGui::ColorEdit3("Color", m_color);
-			ImGui::SliderFloat3("Direction", m_rotationL, 0.0, 1.0);
+			ImGui::SliderFloat3("Direction", m_rotationL, -3.1415, 3.1415);
 			ImGui::SliderFloat("Light X", &m_x, -10.0f, 10.0f);
 			ImGui::SliderFloat("Light Y", &m_y, -10.0f, 10.0f);
 			ImGui::SliderFloat("Light Z", &m_z, -10.0f, 10.0f);
-			ImGui::SliderFloat("Light Intensity", &m_intensity, 0.0f, 1000.0f);
+			ImGui::SliderFloat("Light Intensity", &m_intensity, 0.0f, 10.0f);
 			if (ImGui::Button("Reset"))
 			{
 				m_speed = 1.0;
@@ -387,24 +423,26 @@ void MyGame::dramImgui()
 	}
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	
+	auto light = l_array[light_id];
 
 	switch (type_id)
 	{
 	case 0:
-		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Directional);
+		light->getComponent<LightComponent>()->setType(LightComponent::LightType::Directional);
 		break;
 	case 1:
-		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Point);
+		light->getComponent<LightComponent>()->setType(LightComponent::LightType::Point);
 		break;
 	case 2:
-		m_light->getComponent<LightComponent>()->setType(LightComponent::LightType::Spot);
+		light->getComponent<LightComponent>()->setType(LightComponent::LightType::Spot);
 		break;
 	default:
 		break;
 	}
 
-	m_light->getTransform()->setRotation(Vector3D(m_rotationL[0], m_rotationL[1], m_rotationL[2]));
-	m_light->getTransform()->setPosition(Vector3D(m_x, m_y, m_z));
-	m_light->getComponent<LightComponent>()->setIntensity(m_intensity);
-	m_light->getComponent<LightComponent>()->setColor(Vector3D(m_color[0], m_color[1], m_color[2]));
+	light->getTransform()->setRotation(Vector3D(m_rotationL[0], m_rotationL[1], m_rotationL[2]));
+	light->getTransform()->setPosition(Vector3D(m_x, m_y, m_z));
+	light->getComponent<LightComponent>()->setIntensity(m_intensity);
+	light->getComponent<LightComponent>()->setColor(Vector3D(m_color[0], m_color[1], m_color[2]));
 }
