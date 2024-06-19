@@ -10,6 +10,9 @@ Shader files available in TestGame/Assets/Shaders folder
 
 Rendering pass is located in YZ/src/Graphics/GraphicsEngine.cpp
 
+Current demo preview:
+![image](https://github.com/ZennLuu/YZPost-Processing/assets/154216577/7124f9d9-ba2f-4c8e-81f7-e5bc6116bcee)
+
 Also, here's some screenshots of game's post-process shaders:
 
 Bright light with default post-process
